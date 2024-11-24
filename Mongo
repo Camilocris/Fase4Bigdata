@@ -1,0 +1,61 @@
+Fase 1 MongoDb
+Para el ejercicio propuesto usare la base de empresas de servicios de internet discriminando los ingresos por trimestre:
+https://www.datos.gov.co/Ciencia-Tecnolog-a-e-Innovaci-n/Internet-Fijo-ingresos-por-proveedor/rcst-xw55/explore/query/SELECT%20%60a_o%60%2C%20%60trimestre%60%2C%20%60proveedor%60%2C%20%60ingresos%60/page/filter
+
+Se ingresan los registros manuales.
+db.INGINTER.insertMany([
+    {
+        "AÑO": 2021,
+        "TRIMESTRE": 3,
+        "PROVEEDOR": "FUNDACION VISION 20/20 COLOMBIA",
+        "INGRESOS": 25574000
+    },
+    {
+        "AÑO": 2021,
+        "TRIMESTRE": 3,
+        "PROVEEDOR": "INTERCOM COMUNICACIONES ISP SAS",
+        "INGRESOS": 1903250
+    }
+])
+ 
+
+Para actualizar el campo INGRESOS de uno de los registros, por ejemplo, el de "FUNDACION VISION 20/20 COLOMBIA"
+
+db.INGINTER.updateOne(
+    { "PROVEEDOR": "FUNDACION VISION 20/20 COLOMBIA" },  // Filtro para encontrar el registro
+    { $set: { "INGRESOS": 30000000 } }  // Lo que deseas actualizar
+)
+ 
+Eliminar un registro
+ 
+Limitación y filtro
+db.INGINTER.find()  // Selecciona todos los documentos
+.sort({ "INGRESOS": -1 })  // Ordena de mayor a menor por el campo "INGRESOS"
+.limit(5)  // Limita el resultado a los primeros 5 documentos
+ 
+Consulta de agregación para calcular el promedio de ingresos:
+javascript
+Copy code
+db.INGINTER.aggregate([
+    {
+        $group: {
+            _id: null,  // Agrupar todos los documentos (sin criterio específico)
+            promedioIngresos: { $avg: "$INGRESOS" }  // Calcular el promedio de ingresos
+        }
+    }
+])
+ 
+Segregando el 2021
+ 
+db.INGINTER.aggregate([
+    {
+        $match: { "AÑO": 2021 }  // Filtrar solo los registros de 2021
+    },
+    {
+        $group: {
+            _id: null,  // Agrupar todos los documentos
+            promedioIngresos: { $avg: "$INGRESOS" }  // Calcular el promedio de ingresos
+        }
+    }
+])
+
